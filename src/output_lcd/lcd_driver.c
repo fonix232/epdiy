@@ -534,8 +534,11 @@ static esp_err_t init_lcd_peripheral() {
     // send next frame automatically in stream mode
     lcd_ll_enable_auto_next_frame(lcd.hal.dev, false);
 
-    lcd_ll_enable_interrupt(lcd.hal.dev, LCD_LL_EVENT_VSYNC_END, true);
-    lcd_ll_enable_interrupt(lcd.hal.dev, LCD_LL_EVENT_TRANS_DONE, true);
+    // Enable interrupts using the PERIPH_RCC_ATOMIC macro for ESP-IDF 5.5 compatibility
+    PERIPH_RCC_ATOMIC() {
+        lcd_ll_enable_interrupt(lcd.hal.dev, LCD_LL_EVENT_VSYNC_END, true);
+        lcd_ll_enable_interrupt(lcd.hal.dev, LCD_LL_EVENT_TRANS_DONE, true);
+    }
 
     // enable intr
     esp_intr_enable(lcd.vsync_intr);
