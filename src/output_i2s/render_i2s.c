@@ -309,8 +309,13 @@ void IRAM_ATTR i2s_fetch_frame_data(RenderContext_t* ctx, int thread_id) {
         if (l < min_y || l >= max_y
             || (ctx->drawn_lines != NULL && !ctx->drawn_lines[l - area.y])) {
             uint8_t* buf = NULL;
-            while (buf == NULL)
+            while (buf == NULL) {
                 buf = lq_current(lq);
+                // Yield to prevent watchdog timeout on tight loops
+                if (buf == NULL) {
+                    taskYIELD();
+                }
+            }
             memset(buf, 0x00, lq->element_size);
             lq_commit(lq);
             continue;
@@ -381,8 +386,13 @@ void IRAM_ATTR i2s_fetch_frame_data(RenderContext_t* ctx, int thread_id) {
         }
 
         uint8_t* buf = NULL;
-        while (buf == NULL)
+        while (buf == NULL) {
             buf = lq_current(lq);
+            // Yield to prevent watchdog timeout on tight loops
+            if (buf == NULL) {
+                taskYIELD();
+            }
+        }
 
         memcpy(buf, lp, lq->element_size);
 
