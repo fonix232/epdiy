@@ -212,6 +212,9 @@ static void IRAM_ATTR render_thread(void* arg) {
 #endif
 
         xSemaphoreGive(render_context.feed_done_smphr[thread_id]);
+        
+        // Yield to allow IDLE task to run and reset watchdog
+        taskYIELD();
     }
 }
 
